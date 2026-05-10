@@ -118,10 +118,18 @@ for i in top_real:
 cm = confusion_matrix(y_test, y_pred)
 
 plt.figure(figsize=(6,4))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
 
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.title("Confusion Matrix")
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=["Real", "Fake"],
+    yticklabels=["Real", "Fake"]
+)
+
+plt.xlabel("Predicted Label")
+plt.ylabel("Actual Label")
+plt.title("Confusion Matrix: Fake News Detector Using TF-IDF and Logistic Regression")
 
 plt.show()
