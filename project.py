@@ -1,7 +1,15 @@
+# Max Mendez 
+# Section 1
+# jam1116
+# Fake news detector using TF-IDF and Logistic Regression
+
+
 
 # libraries
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # text processing
 import string
@@ -31,11 +39,21 @@ print("Dataset shape:", df.shape)
 print(df.head())
 
 # data preprocessing
+df = df.dropna(subset=["title", "text"])
 df["content"] = df["title"] + " " + df["text"]
 
 def clean_text(text):
     text = text.lower()
+
+    # remove punctuation
     text = text.translate(str.maketrans('', '', string.punctuation))
+
+    # remove numbers
+    text = ''.join([char for char in text if not char.isdigit()])
+
+    # remove extra spaces
+    text = ' '.join(text.split())
+
     return text
 
 df["content"] = df["content"].apply(clean_text)
@@ -51,7 +69,11 @@ y = df["label"]
 # train-test split
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
 )
 
 print("Training size:", X_train.shape)
@@ -74,3 +96,32 @@ print(classification_report(y_test, y_pred))
 
 print("\nConfusion Matrix:\n")
 print(confusion_matrix(y_test, y_pred))
+
+
+feature_names = vectorizer.get_feature_names_out()
+
+coefficients = model.coef_[0]
+
+top_fake = np.argsort(coefficients)[-10:]
+top_real = np.argsort(coefficients)[:10]
+
+print("\nTop words predicting FAKE news:")
+for i in reversed(top_fake):
+    print(feature_names[i])
+
+print("\nTop words predicting REAL news:")
+for i in top_real:
+    print(feature_names[i])
+
+
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+
+plt.show()
